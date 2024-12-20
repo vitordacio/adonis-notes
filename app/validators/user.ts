@@ -2,21 +2,21 @@ import vine from '@vinejs/vine'
 
 export const createUserValidator = vine.compile(
   vine.object({
-    username: vine.string().trim().minLength(5).maxLength(254),
-    password: vine.string().trim().minLength(6),
-    full_name: vine.string().trim().escape().nullable(),
+    username: vine.string().trim().escape().minLength(5).maxLength(56),
+    password: vine.string().trim().escape().minLength(6),
+    full_name: vine.string().trim().escape().minLength(5).maxLength(254).nullable(),
   })
 )
 
 export const updateUserValidator = vine.compile(
   vine.object({
-    username: vine.string().trim().minLength(5).maxLength(254).nullable(),
-    password: vine.string().trim().minLength(6).nullable(),
-    full_name: vine.string().trim().escape().nullable(),
+    username: vine.string().trim().escape().minLength(5).maxLength(56).nullable(),
+    password: vine.string().trim().escape().minLength(6).nullable(),
+    full_name: vine.string().trim().escape().minLength(5).maxLength(254).nullable(),
   })
 )
 
-export const findByIdUserValidator = vine.compile(
+export const paramIdUserValidator = vine.compile(
   vine.object({
     params: vine.object({
       id: vine.number(),

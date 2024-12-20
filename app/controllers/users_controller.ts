@@ -1,6 +1,5 @@
 import { inject } from '@adonisjs/core'
 import { UserService } from '#services/user_service'
-// import type { HttpContext } from '@adonisjs/core/http'
 
 @inject()
 export default class UsersController {
@@ -14,15 +13,8 @@ export default class UsersController {
 
   async store() {
     const user = await this.userService.create()
-    return user
-    // const { username, password, full_name } = request.body()
-    // const user = await this.userService.create({
-    //   username,
-    //   password,
-    //   full_name,
-    // })
 
-    // return user
+    return user
   }
 
   async show() {
@@ -31,7 +23,13 @@ export default class UsersController {
     return user
   }
 
-  // async update({ params, request }: HttpContext) {}
+  async update() {
+    const user = await this.userService.update()
 
-  // async destroy({ params }: HttpContext) {}
+    return user
+  }
+
+  async destroy() {
+    await this.userService.delete()
+  }
 }
