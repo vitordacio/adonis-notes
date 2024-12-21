@@ -1,7 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeSave, column } from '@adonisjs/lucid/orm'
-import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
+import { BaseModel, beforeSave, column, hasMany } from '@adonisjs/lucid/orm'
+import { DbAccessTokensProvider, AccessToken } from '@adonisjs/auth/access_tokens'
+import type { HasMany } from '@adonisjs/lucid/types/relations'
 import hash from '@adonisjs/core/services/hash'
+import Note from '#models/note'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -22,6 +24,11 @@ export default class User extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
+  @hasMany(() => Note, {
+    foreignKey: 'userId',
+  })
+  declare notes: HasMany<typeof Note>
+
   static accessTokens = DbAccessTokensProvider.forModel(User, {
     expiresIn: '30 days',
     prefix: 'oat_',
@@ -29,6 +36,8 @@ export default class User extends BaseModel {
     type: 'auth_token',
     tokenSecretLength: 40,
   })
+
+  currentAccessToken?: AccessToken
 
   public serialize() {
     const serialized = super.serialize()

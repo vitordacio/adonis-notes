@@ -3,21 +3,20 @@ import { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import { createUserValidator, paramIdUserValidator, updateUserValidator } from '#validators/user'
 import AppException from '#exceptions/app_exception'
-import UnAuthorizedException from '#exceptions/un_authorized_exception'
+import { UserRepository } from '../repositories/users/implementation/UserRepository.js'
 
 @inject()
 export class UserService {
-  constructor(private ctx: HttpContext) {}
+  constructor(
+    private ctx: HttpContext,
+    private userRepository: UserRepository
+  ) {}
 
   create = async (): Promise<User> => {
     const payload = await this.ctx.request.validateUsing(createUserValidator)
     const { username, password, full_name } = payload
 
-    const user = await User.create({
-      username,
-      password,
-      full_name,
-    })
+    const user = await this.userRepository.create({ username, password, full_name })
 
     return user
   }
@@ -25,7 +24,7 @@ export class UserService {
   findById = async (): Promise<User> => {
     const payload = await this.ctx.request.validateUsing(paramIdUserValidator)
     const { params } = payload
-    const user = await User.find(params.id)
+    const user = await this.userRepository.findById(params.id)
 
     if (!user) {
       throw new AppException('User not found', {
@@ -37,7 +36,7 @@ export class UserService {
   }
 
   findAll = async (): Promise<User[]> => {
-    const users = await User.all()
+    const users = await this.userRepository.findAll()
 
     return users
   }
@@ -54,7 +53,7 @@ export class UserService {
     }
 
     if (username) {
-      const alreadyExists = await User.findBy('username', username)
+      const alreadyExists = await this.userRepository.findByUsername(username)
 
       if (alreadyExists && alreadyExists.id !== user.id) {
         throw new AppException('Username already exists', {
@@ -67,7 +66,7 @@ export class UserService {
 
     if (password) user.password = password
     user.full_name = full_name || null
-    await user.save()
+    await this.userRepository.save(user)
 
     return user
   }
@@ -81,6 +80,6 @@ export class UserService {
       })
     }
 
-    await user.delete()
+    await this.userRepository.delete(user)
   }
 }
